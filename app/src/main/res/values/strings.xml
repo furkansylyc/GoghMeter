@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GoghMeter</string>
+    <string name="steps">Adımlar</string>
+    <string name="distance">Mesafe</string>
+    <string name="calories">Kalori</string>
+    <string name="km">km</string>
+    <string name="today">Bugün</string>
+    <string name="permission_required">Adım sayma için izin gerekli</string>
+    <string name="grant_permission">İzin Ver</string>
+    <string name="reset_steps">Sıfırla</string>
+</resources>
+

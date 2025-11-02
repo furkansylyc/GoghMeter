@@ -145,6 +145,7 @@ fun PedometerScreen(viewModel: PedometerViewModel) {
                     textAlign = TextAlign.Center
                 )
 
+
                 Box(
                     modifier = Modifier
                         .size(280.dp)
@@ -390,6 +391,7 @@ fun HistoryScreen(
 ) {
     val history by viewModel.stepHistory.collectAsState()
     val dateFormat = remember { SimpleDateFormat("dd MMMM yyyy, EEEE", Locale("tr", "TR")) }
+    var showClearDialog by remember { mutableStateOf(false) }
     
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -449,13 +451,77 @@ fun HistoryScreen(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.height(500.dp)
+                    modifier = Modifier.height(400.dp)
                 ) {
                     items(history) { record ->
                         HistoryItem(record, dateFormat)
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Button(
+                    onClick = { showClearDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE74C3C),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = "Geçmişi Sıfırla",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
+        }
+        
+        if (showClearDialog) {
+            AlertDialog(
+                onDismissRequest = { showClearDialog = false },
+                title = {
+                    Text(
+                        text = "Geçmişi Temizle",
+                        color = Color(0xFFFFD700),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Tüm adım geçmişini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+                        color = Color.White
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.clearHistory()
+                            showClearDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE74C3C)
+                        )
+                    ) {
+                        Text("Sil")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showClearDialog = false }
+                    ) {
+                        Text(
+                            text = "İptal",
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                },
+                containerColor = Color(0xFF2C3E50),
+                shape = RoundedCornerShape(16.dp)
+            )
         }
     }
 }

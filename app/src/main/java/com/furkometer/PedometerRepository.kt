@@ -26,28 +26,6 @@ class PedometerRepository(application: Application) {
 
     suspend fun saveCurrentSteps(steps: Int, distance: Double, calories: Int) {
         stateDao.updateStats(steps, distance, calories)
-
-        val today = getTodayStartTimestamp()
-        val existingRecord = recordDao.getRecordByDate(today)
-        
-        if (existingRecord != null) {
-            recordDao.updateRecord(
-                existingRecord.copy(
-                    steps = steps,
-                    distance = distance,
-                    calories = calories
-                )
-            )
-        } else {
-            recordDao.insertRecord(
-                StepRecord(
-                    date = today,
-                    steps = steps,
-                    distance = distance,
-                    calories = calories
-                )
-            )
-        }
     }
 
     fun getCurrentSteps(): Flow<Int> {
@@ -115,6 +93,10 @@ class PedometerRepository(application: Application) {
     
     suspend fun updateRecord(record: com.furkometer.data.StepRecord) {
         recordDao.updateRecord(record)
+    }
+    
+    suspend fun deleteAllRecords() {
+        recordDao.deleteAllRecords()
     }
 
     private fun getTodayStartTimestamp(): Long {

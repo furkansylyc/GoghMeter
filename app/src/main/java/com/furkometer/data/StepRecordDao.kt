@@ -35,5 +35,8 @@ interface StepRecordDao {
     
     @Query("DELETE FROM step_records WHERE date < :beforeDate")
     suspend fun deleteOldRecords(beforeDate: Long)
+    
+    @Query("DELETE FROM step_records")
+    suspend fun deleteAllRecords()
 }
 

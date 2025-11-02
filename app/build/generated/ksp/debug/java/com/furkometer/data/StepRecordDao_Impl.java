@@ -43,6 +43,8 @@ public final class StepRecordDao_Impl implements StepRecordDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteOldRecords;
 
+  private final SharedSQLiteStatement __preparedStmtOfDeleteAllRecords;
+
   public StepRecordDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfStepRecord = new EntityInsertionAdapter<StepRecord>(__db) {
@@ -98,6 +100,14 @@ public final class StepRecordDao_Impl implements StepRecordDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM step_records WHERE date < ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteAllRecords = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM step_records";
         return _query;
       }
     };
@@ -200,6 +210,29 @@ public final class StepRecordDao_Impl implements StepRecordDao {
           }
         } finally {
           __preparedStmtOfDeleteOldRecords.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteAllRecords(final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAllRecords.acquire();
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteAllRecords.release(_stmt);
         }
       }
     }, $completion);

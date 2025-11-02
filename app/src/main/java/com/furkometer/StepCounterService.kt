@@ -32,6 +32,8 @@ class StepCounterService : Service(), SensorEventListener {
     private var stepCounterSensor: Sensor? = null
     private var initialStepCount = 0
     private var hasInitialValue = false
+    private var lastSavedSteps = 0
+    private val stepSaveThreshold = 50
 
     private val averageStepLengthMeters = 0.75
     private val caloriesPer1000Steps = 45
@@ -95,6 +97,7 @@ class StepCounterService : Service(), SensorEventListener {
             val steps = repository.getCurrentStepsSync()
             val distance = repository.getDistanceSync()
             val calories = repository.getCaloriesSync()
+            lastSavedSteps = steps
 
             android.os.Handler(android.os.Looper.getMainLooper()).post {
                 startForeground(NOTIFICATION_ID, createNotification(steps, distance, calories))
@@ -127,10 +130,15 @@ class StepCounterService : Service(), SensorEventListener {
             val distanceMeters = currentSteps * averageStepLengthMeters
             val distance = distanceMeters / 1000.0
             val calories = (currentSteps / 1000.0 * caloriesPer1000Steps).toInt()
-            serviceScope.launch {
-                repository.saveCurrentSteps(currentSteps, distance, calories)
+            
+            val stepsDifference = kotlin.math.abs(currentSteps - lastSavedSteps)
+            if (stepsDifference >= stepSaveThreshold || currentSteps == 0) {
+                serviceScope.launch {
+                    repository.saveCurrentSteps(currentSteps, distance, calories)
+                    lastSavedSteps = currentSteps
+                }
             }
-
+            
             updateNotification(currentSteps, distance, calories)
 
             sendBroadcast(Intent("com.furkometer.STEPS_UPDATED").apply {
@@ -190,6 +198,7 @@ class StepCounterService : Service(), SensorEventListener {
     fun resetSteps() {
         hasInitialValue = false
         initialStepCount = 0
+        lastSavedSteps = 0
         serviceScope.launch {
             repository.reset()
         }

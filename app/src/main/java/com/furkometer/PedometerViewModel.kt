@@ -78,6 +78,12 @@ class PedometerViewModel(application: Application) : AndroidViewModel(applicatio
             repository.reset()
         }
     }
+    
+    fun clearHistory() {
+        viewModelScope.launch {
+            repository.deleteAllRecords()
+        }
+    }
 
     override fun onCleared() {
         super.onCleared()
